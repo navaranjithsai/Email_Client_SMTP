@@ -193,9 +193,14 @@ HTML_TEMPLATE = """
             margin-right: 0.5rem;
         }
         
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-1px);
             box-shadow: var(--shadow-sm);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .btn-primary {
@@ -204,7 +209,7 @@ HTML_TEMPLATE = """
             border-color: var(--primary-color);
         }
         
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background-color: var(--primary-hover);
             border-color: var(--primary-hover);
         }
@@ -320,6 +325,111 @@ HTML_TEMPLATE = """
         .close-button:hover {
             color: var(--text-color);
             background-color: rgba(0,0,0,0.05);
+        }
+        
+        /* Email View Modal */
+        #email-view-modal .modal-content {
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .email-view-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .email-meta {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .email-meta-row {
+            display: flex;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .email-meta-row:last-child {
+            border-bottom: none;
+        }
+        
+        .email-meta-label {
+            font-weight: 600;
+            color: var(--text-light);
+            min-width: 100px;
+            margin-right: 1rem;
+        }
+        
+        .email-meta-value {
+            color: var(--text-color);
+            flex: 1;
+        }
+        
+        .email-attachments {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .email-attachments:hover {
+            background-color: #eef1f5;
+        }
+        
+        .email-attachments-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .email-attachments-count {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .email-attachments-list {
+            display: none;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .email-attachments-list.show {
+            display: block;
+        }
+        
+        .attachment-item {
+            padding: 0.5rem 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .attachment-item i {
+            color: var(--primary-color);
+        }
+        
+        .email-content {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            min-height: 200px;
+        }
+        
+        .email-thread-id {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
         }
         
         #compose-grid {
@@ -548,17 +658,10 @@ HTML_TEMPLATE = """
             text-overflow: ellipsis;
         }
         
-        .draft-item-date {
+        .draft-item-date, .sent-item-date {
             font-size: 0.75rem;
             color: var(--text-light);
             margin-top: 0.5rem;
-        }
-        
-        .sent-item-content {
-            display: none;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
         }
         
         .alert {
@@ -705,6 +808,11 @@ HTML_TEMPLATE = """
                 width: 60px;
                 height: 60px;
             }
+            
+            #email-view-modal .modal-content {
+                width: 95%;
+                margin: 2% auto;
+            }
         }
     </style>
 </head>
@@ -821,11 +929,7 @@ HTML_TEMPLATE = """
                             <div class="dropzone" id="dropzone">
                                 <div class="dropzone-content">
                                     <div class="dropzone-icon">
-                                        <svg viewBox="0 0 24 24">
-                                            <path d="M7.5 13.5L10.5 16.5M10.5 16.5L13.5 13.5M10.5 16.5V8.5" />
-                                            <path d="M19.5 14.5C19.5 11.4624 17.0376 9 14 9C13.6916 9 13.3907 9.03113 13.1004 9.09023C12.3619 6.73646 10.1098 5 7.5 5C4.18629 5 1.5 7.68629 1.5 11C1.5 14.3137 4.18629 17 7.5 17" />
-                                            <path d="M19.5 14.5C19.5 11.4624 17.0376 9 14 9C11.3902 9 9.13805 10.7365 8.39961 13.0902C8.10925 13.0311 7.80842 13 7.5 13C5.01472 13 3 15.0147 3 17.5C3 19.9853 5.01472 22 7.5 22H14C17.0376 22 19.5 19.5376 19.5 16.5V14.5Z" />
-                                        </svg>
+                                        <svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="upload" data-name="Line Color" xmlns="http://www.w3.org/2000/svg" class="icon line-color"><line id="secondary" x1="12" y1="16" x2="12" y2="3" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></line><polyline id="secondary-2" data-name="secondary" points="16 7 12 3 8 7" style="fill: none; stroke: rgb(44, 169, 188); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></polyline><path id="primary" d="M20,16v4a1.08,1.08,0,0,1-1.14,1H5.14A1.08,1.08,0,0,1,4,20V16" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>
                                     </div>
                                     <div class="dropzone-text">Drop files here or click to browse</div>
                                     <div class="dropzone-subtext">Maximum file size: 25MB per file</div>
@@ -877,6 +981,7 @@ HTML_TEMPLATE = """
         </div>
     </main>
 
+    <!-- Edit Server Modal -->
     <div id="edit-server-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -917,6 +1022,56 @@ HTML_TEMPLATE = """
             </div>
         </div>
     </div>
+    
+    <!-- Email View Modal -->
+    <div id="email-view-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Email Details</h2>
+                <button class="close-button" onclick="document.getElementById('email-view-modal').style.display='none'">&times;</button>
+            </div>
+            <div class="email-view-body">
+                <div class="email-thread-id" id="email-thread-id"></div>
+                <div class="email-meta">
+                    <div class="email-meta-row">
+                        <div class="email-meta-label">From:</div>
+                        <div class="email-meta-value" id="email-view-from"></div>
+                    </div>
+                    <div class="email-meta-row">
+                        <div class="email-meta-label">To:</div>
+                        <div class="email-meta-value" id="email-view-to"></div>
+                    </div>
+                    <div class="email-meta-row" id="email-view-cc-row" style="display:none;">
+                        <div class="email-meta-label">CC:</div>
+                        <div class="email-meta-value" id="email-view-cc"></div>
+                    </div>
+                    <div class="email-meta-row" id="email-view-bcc-row" style="display:none;">
+                        <div class="email-meta-label">BCC:</div>
+                        <div class="email-meta-value" id="email-view-bcc"></div>
+                    </div>
+                    <div class="email-meta-row">
+                        <div class="email-meta-label">Subject:</div>
+                        <div class="email-meta-value" id="email-view-subject"></div>
+                    </div>
+                    <div class="email-meta-row">
+                        <div class="email-meta-label">Date:</div>
+                        <div class="email-meta-value" id="email-view-date"></div>
+                    </div>
+                </div>
+                <div class="email-attachments" id="email-attachments-section" style="display:none;" onclick="App.toggleAttachments()">
+                    <div class="email-attachments-header">
+                        <span>
+                            <i class="fas fa-paperclip"></i>
+                            Attachments: <span class="email-attachments-count" id="email-attachments-count"></span>
+                        </span>
+                        <i class="fas fa-chevron-down" id="attachments-chevron"></i>
+                    </div>
+                    <div class="email-attachments-list" id="email-attachments-list"></div>
+                </div>
+                <div class="email-content" id="email-view-content"></div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jodit@3.24.5/build/jodit.min.js"></script>
     <script>
@@ -924,7 +1079,11 @@ HTML_TEMPLATE = """
         let selectedFiles = [];
         
         document.addEventListener('DOMContentLoaded', () => {
-            const App = {
+            window.App = {
+                isSending: false, // Flag to prevent multiple submissions
+                composeFormHandler: null, // Store the handler function
+                saveDraftHandler: null, // Store the draft handler function
+                
                 DB: {
                     get: (key) => {
                         const data = localStorage.getItem(key);
@@ -1089,12 +1248,23 @@ HTML_TEMPLATE = """
                     });
 
                     const composeForm = document.getElementById('compose-form');
-                    composeForm.removeEventListener('submit', this.sendEmail);
-                    composeForm.addEventListener('submit', (e) => this.sendEmail(e));
-                    
                     const saveDraftBtn = document.getElementById('save-draft-btn');
-                    saveDraftBtn.removeEventListener('click', this.saveDraft);
-                    saveDraftBtn.addEventListener('click', () => this.saveDraft());
+                    
+                    // Remove old event listeners if they exist
+                    if (this.composeFormHandler) {
+                        composeForm.removeEventListener('submit', this.composeFormHandler);
+                    }
+                    if (this.saveDraftHandler) {
+                        saveDraftBtn.removeEventListener('click', this.saveDraftHandler);
+                    }
+                    
+                    // Create new bound handlers
+                    this.composeFormHandler = (e) => this.sendEmail(e);
+                    this.saveDraftHandler = () => this.saveDraft();
+                    
+                    // Add new event listeners
+                    composeForm.addEventListener('submit', this.composeFormHandler);
+                    saveDraftBtn.addEventListener('click', this.saveDraftHandler);
                 },
                 
                 saveDraft() {
@@ -1195,7 +1365,8 @@ HTML_TEMPLATE = """
                         listContainer.appendChild(itemDiv);
                     });
 
-                    listContainer.addEventListener('click', (e) => {
+                    // Use event delegation for draft item clicks
+                    listContainer.onclick = (e) => {
                         e.stopPropagation();
                         if (e.target.classList.contains('edit-draft-btn')) {
                             const draftId = e.target.dataset.id;
@@ -1209,11 +1380,20 @@ HTML_TEMPLATE = """
                                 this.loadDraft(item.dataset.id);
                             }
                         }
-                    });
+                    };
                 },
                 
                 async sendEmail(event) {
                     event.preventDefault();
+                    
+                    // Prevent multiple simultaneous submissions
+                    if (this.isSending) {
+                        console.log('Email is already being sent, ignoring duplicate submission');
+                        return;
+                    }
+                    
+                    this.isSending = true;
+                    
                     const sendBtn = document.getElementById('send-btn');
                     const sendBtnText = document.getElementById('send-btn-text');
                     const sendStatus = document.getElementById('send-status');
@@ -1228,8 +1408,12 @@ HTML_TEMPLATE = """
                         this.displayStatus('Please select a valid SMTP account.', 'danger');
                         sendBtn.disabled = false;
                         sendBtnText.innerHTML = 'Send Email';
+                        this.isSending = false;
                         return;
                     }
+
+                    // Store attachment data before clearing
+                    const attachmentData = selectedFiles.map(f => ({filename: f.name, size: f.size}));
 
                     const formData = new FormData();
                     const emailData = {
@@ -1259,6 +1443,20 @@ HTML_TEMPLATE = """
                         if (response.ok) {
                             this.displayStatus('Email sent successfully!', 'success');
                             
+                            // Save to sent items with stored attachment data
+                            const sentMail = {
+                                ...emailData,
+                                id: Date.now().toString(),
+                                timestamp: Date.now(),
+                                attachments: attachmentData // Use stored attachment data
+                            };
+                            delete sentMail.server_config;
+                            
+                            const sentItems = this.DB.get('email_client_sent_mail');
+                            sentItems.unshift(sentMail);
+                            this.DB.save('email_client_sent_mail', sentItems);
+                            
+                            // Clear draft if it exists
                             const draftId = document.getElementById('draft-id').value;
                             if (draftId) {
                                 let drafts = this.DB.get('email_client_drafts');
@@ -1266,22 +1464,12 @@ HTML_TEMPLATE = """
                                 this.DB.save('email_client_drafts', drafts);
                             }
                             
+                            // Reset form
                             document.getElementById('compose-form').reset();
                             document.getElementById('draft-id').value = '';
                             editorInstance.value = '';
                             selectedFiles = [];
                             this.updateFileList();
-                            
-                            const sentMail = {
-                              ...emailData,
-                                id: Date.now().toString(),
-                                timestamp: Date.now(),
-                                attachments: selectedFiles.map(f => ({filename: f.name, size: f.size}))
-                            };
-                            delete sentMail.server_config;
-                            const sentItems = this.DB.get('email_client_sent_mail');
-                            sentItems.unshift(sentMail);
-                            this.DB.save('email_client_sent_mail', sentItems);
 
                         } else {
                             throw new Error(result.error || 'Unknown error occurred.');
@@ -1291,6 +1479,7 @@ HTML_TEMPLATE = """
                     } finally {
                         sendBtn.disabled = false;
                         sendBtnText.innerHTML = 'Send Email';
+                        this.isSending = false;
                     }
                 },
 
@@ -1300,6 +1489,86 @@ HTML_TEMPLATE = """
                     setTimeout(() => {
                         sendStatus.innerHTML = '';
                     }, 5000);
+                },
+                
+                viewSentEmail(emailId) {
+                    const sentItems = this.DB.get('email_client_sent_mail');
+                    const email = sentItems.find(item => item.id === emailId);
+                    
+                    if (email) {
+                        // Set thread ID
+                        document.getElementById('email-thread-id').textContent = `Thread ID: ${email.id}`;
+                        
+                        // Set email metadata
+                        const fromDisplay = email.from_name ? 
+                            `${email.from_name} <${email.from_email || 'Account Default'}>` :
+                            (email.from_email || 'Account Default');
+                        
+                        document.getElementById('email-view-from').textContent = fromDisplay;
+                        document.getElementById('email-view-to').textContent = email.to;
+                        document.getElementById('email-view-subject').textContent = email.subject;
+                        document.getElementById('email-view-date').textContent = new Date(email.timestamp).toLocaleString();
+                        
+                        // Handle CC
+                        if (email.cc) {
+                            document.getElementById('email-view-cc').textContent = email.cc;
+                            document.getElementById('email-view-cc-row').style.display = 'flex';
+                        } else {
+                            document.getElementById('email-view-cc-row').style.display = 'none';
+                        }
+                        
+                        // Handle BCC
+                        if (email.bcc) {
+                            document.getElementById('email-view-bcc').textContent = email.bcc;
+                            document.getElementById('email-view-bcc-row').style.display = 'flex';
+                        } else {
+                            document.getElementById('email-view-bcc-row').style.display = 'none';
+                        }
+                        
+                        // Handle attachments
+                        if (email.attachments && email.attachments.length > 0) {
+                            document.getElementById('email-attachments-section').style.display = 'block';
+                            document.getElementById('email-attachments-count').textContent = `${email.attachments.length} file(s)`;
+                            
+                            const attachmentsList = document.getElementById('email-attachments-list');
+                            attachmentsList.innerHTML = '';
+                            attachmentsList.classList.remove('show');
+                            
+                            email.attachments.forEach(attachment => {
+                                const attachmentItem = document.createElement('div');
+                                attachmentItem.className = 'attachment-item';
+                                attachmentItem.innerHTML = `
+                                    <i class="fas fa-file"></i>
+                                    <span>${attachment.filename} (${this.formatFileSize(attachment.size)})</span>
+                                `;
+                                attachmentsList.appendChild(attachmentItem);
+                            });
+                            
+                            // Reset chevron
+                            document.getElementById('attachments-chevron').className = 'fas fa-chevron-down';
+                        } else {
+                            document.getElementById('email-attachments-section').style.display = 'none';
+                        }
+                        
+                        // Set email content
+                        document.getElementById('email-view-content').innerHTML = email.body;
+                        
+                        // Show modal
+                        document.getElementById('email-view-modal').style.display = 'block';
+                    }
+                },
+                
+                toggleAttachments() {
+                    const attachmentsList = document.getElementById('email-attachments-list');
+                    const chevron = document.getElementById('attachments-chevron');
+                    
+                    if (attachmentsList.classList.contains('show')) {
+                        attachmentsList.classList.remove('show');
+                        chevron.className = 'fas fa-chevron-down';
+                    } else {
+                        attachmentsList.classList.add('show');
+                        chevron.className = 'fas fa-chevron-up';
+                    }
                 },
 
                 renderSentItems() {
@@ -1318,34 +1587,21 @@ HTML_TEMPLATE = """
                         itemDiv.dataset.id = item.id;
                         
                         const preview = new DOMParser().parseFromString(item.body, 'text/html').body.textContent || "";
-                        const displayFromEmail = item.from_email || '(Account Default)';
+                        const attachmentText = item.attachments && item.attachments.length > 0 ? 
+                            ` 📎 ${item.attachments.length}` : '';
 
                         itemDiv.innerHTML = `
-                            <div class="sent-item-header">To: ${item.to}</div>
+                            <div class="sent-item-header">To: ${item.to}${attachmentText}</div>
                             <div class="sent-item-subject">${item.subject}</div>
                             <div class="sent-item-preview">${preview.substring(0, 100)}...</div>
-                            <div class="sent-item-content">
-                                <p><strong>From Name:</strong> ${item.from_name || '(No name)'}</p>
-                                <p><strong>From Email:</strong> ${displayFromEmail}</p>
-                                <p><strong>To:</strong> ${item.to}</p>
-                                ${item.cc ? `<p><strong>CC:</strong> ${item.cc}</p>` : ''}
-                                ${item.bcc ? `<p><strong>BCC:</strong> ${item.bcc}</p>` : ''}
-                                <p><strong>Subject:</strong> ${item.subject}</p>
-                                <p><strong>Date:</strong> ${new Date(item.timestamp).toLocaleString()}</p>
-                                ${item.attachments && item.attachments.length > 0 ? `<p><strong>Attachments:</strong> ${item.attachments.map(a => a.filename).join(', ')}</p>` : ''}
-                                <hr>
-                                <div>${item.body}</div>
-                            </div>
+                            <div class="sent-item-date">${new Date(item.timestamp).toLocaleString()}</div>
                         `;
+                        
+                        itemDiv.addEventListener('click', () => {
+                            this.viewSentEmail(item.id);
+                        });
+                        
                         listContainer.appendChild(itemDiv);
-                    });
-
-                    listContainer.addEventListener('click', (e) => {
-                        const item = e.target.closest('.sent-item');
-                        if (item) {
-                            const content = item.querySelector('.sent-item-content');
-                            content.style.display = content.style.display === 'block' ? 'none' : 'block';
-                        }
                     });
                 },
 
@@ -1407,27 +1663,25 @@ HTML_TEMPLATE = """
                                     <div class="file-size">${size}</div>
                                 </div>
                             </div>
-                            <button class="file-remove" data-index="${index}">
+                            <button class="file-remove" data-index="${index}" onclick="App.removeFile(${index})">
                                 <i class="fas fa-times"></i>
                             </button>
                         `;
                         
                         fileList.appendChild(fileItem);
                     });
-
-                    fileList.addEventListener('click', (e) => {
-                        const btn = e.target.closest('.file-remove');
-                        if (btn) {
-                            const index = parseInt(btn.dataset.index);
-                            selectedFiles.splice(index, 1);
-                            this.updateFileList();
-                        }
-                    });
+                },
+                
+                removeFile(index) {
+                    selectedFiles.splice(index, 1);
+                    this.updateFileList();
                 },
 
                 initEditor() {
                     editorInstance = Jodit.make('#message-body', {
                         height: 450,
+                        minHeight: 350,
+                        maxHeight: 600,
                         spellcheck: true,
                         toolbarAdaptive: false,
                         toolbarSticky: true,
@@ -1446,100 +1700,11 @@ HTML_TEMPLATE = """
                             'hr', 'eraser', 'copyformat', '|',
                             'symbol', 'fullsize', 'selectall', 'print', 'preview', 'find', 'about'
                         ],
-                        buttonsMD: [
-                            'source', '|', 'bold', 'italic', 'underline', 'strikethrough', '|',
-                            'ul', 'ol', '|', 'font', 'fontsize', '|',
-                            'image', 'table', 'link', '|', 'align', '|',
-                            'undo', 'redo', '|', 'hr', 'eraser', 'fullsize', 'preview'
-                        ],
-                        buttonsSM: [
-                            'bold', 'italic', '|', 'ul', 'ol', '|',
-                            'fontsize', '|', 'image', 'link', '|',
-                            'source', 'fullsize', 'preview'
-                        ],
-                        buttonsXS: [
-                            'bold', 'italic', '|', 'image', 'link', '|',
-                            'source', 'fullsize'
-                        ],
-                        events: {
-                            afterInit: function (editor) {
-                                // Enable spell checking
-                                editor.workplace.setAttribute('spellcheck', 'true');
-                            }
-                        },
-                        style: {
-                            font: '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-                        },
                         placeholder: 'Start typing your email content here...',
                         theme: 'default',
-                        allowResizeX: false,
-                        allowResizeY: true,
-                        minHeight: 100,
-                        maxHeight: 800,
-                        saveModeInCookie: false,
-                        removeButtons: [],
-                        disablePlugins: [],
-                        extraButtons: [],
                         uploader: {
                             insertImageAsBase64URI: true
-                        },
-                        controls: {
-                            font: {
-                                list: {
-                                    'Andale Mono,AndaleMono,monospace': 'Andale Mono',
-                                    'Arial,Helvetica,sans-serif': 'Arial',
-                                    'Arial Black,Arial Black,Gadget,sans-serif': 'Arial Black',
-                                    'Book Antiqua,Book Antiqua,Palatino,serif': 'Book Antiqua',
-                                    'Comic Sans MS,Comic Sans MS,cursive': 'Comic Sans MS',
-                                    'Courier New,Courier New,Courier,monospace': 'Courier New',
-                                    'Georgia,Georgia,serif': 'Georgia',
-                                    'Helvetica,Helvetica,Arial,sans-serif': 'Helvetica',
-                                    'Impact,Charcoal,sans-serif': 'Impact',
-                                    'Lucida Console,Monaco,monospace': 'Lucida Console',
-                                    'Lucida Sans Unicode,Lucida Grande,sans-serif': 'Lucida Sans',
-                                    'Palatino,Palatino Linotype,Palatino LT STD,Book Antiqua,Georgia,serif': 'Palatino',
-                                    'Tahoma,Geneva,sans-serif': 'Tahoma',
-                                    'Times New Roman,Times,serif': 'Times New Roman',
-                                    'Trebuchet MS,Helvetica,sans-serif': 'Trebuchet MS',
-                                    'Verdana,Geneva,sans-serif': 'Verdana'
-                                }
-                            },
-                            fontsize: {
-                                list: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '22', '24', '26', '28', '30', '32', '34', '36', '48', '60', '72', '96']
-                            }
-                        },
-                        language: 'en',
-                        i18n: 'en',
-                        tabIndex: -1,
-                        toolbar: true,
-                        inline: false,
-                        readonly: false,
-                        disabled: false,
-                        autofocus: false,
-                        direction: '',
-                        defaultMode: Jodit.MODE_WYSIWYG,
-                        useSplitMode: false,
-                        colorPickerDefaultTab: 'background',
-                        imageDefaultWidth: 300,
-                        disablePlugins: [],
-                        enter: 'p',
-                        defaultFontSizePoints: 'pt',
-                        cleanHTML: {
-                            timeout: 300,
-                            removeEmptyElements: true,
-                            fillEmptyParagraph: true,
-                            replaceNBSP: true,
-                            replaceOldTags: {
-                                i: 'em',
-                                b: 'strong'
-                            }
-                        },
-                        addNewLine: true,
-                        addNewLineOnDBLClick: true,
-                        addNewLineTagsTriggers: ['table', 'iframe', 'img', 'hr'],
-                        askBeforePasteHTML: false,
-                        askBeforePasteFromWord: false,
-                        defaultActionOnPaste: 'insert_clear_html'
+                        }
                     });
                 },
 
@@ -1556,7 +1721,7 @@ HTML_TEMPLATE = """
                         // Send email - Ctrl/Cmd + Enter
                         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                             e.preventDefault();
-                            if (document.getElementById('compose-view').style.display !== 'none') {
+                            if (document.getElementById('compose-view').style.display !== 'none' && !this.isSending) {
                                 const sendBtn = document.getElementById('send-btn');
                                 if (!sendBtn.disabled) {
                                     sendBtn.click();
@@ -1574,6 +1739,14 @@ HTML_TEMPLATE = """
                     this.initDragDrop();
                     this.initKeyboardShortcuts();
                     this.showView('server-config-view');
+                    
+                    // Close email view modal when clicking outside
+                    window.addEventListener('click', (event) => {
+                        const emailModal = document.getElementById('email-view-modal');
+                        if (event.target === emailModal) {
+                            emailModal.style.display = 'none';
+                        }
+                    });
                 }
             };
 
